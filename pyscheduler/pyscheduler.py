@@ -7,29 +7,35 @@ import pulp
 from pyscheduler import pyscheduler
 
 
-p = np.array(['Joe', 'Tom', 'Sam', 'Bill', 'Fred', 'John', 'Wex', 'Chip',
-            'Mike', 'Jeff', 'Steve', 'Kumar', 'Connor', 'Matt', 'Peter', 'Cindy'])
-r = np.array([5.0, 4.2, 4.3, 5.1, 4.4, 3.7, 3.8, 4.6, 3.2, 3.6, 3.8, 4.7, 4.3, 4.6, 4.2, 3.4])
-s = dict(zip(p, r))
+s = {'Mark': 4.2,
+     'Bev': 3.9,
+     'Jeff': 3.7,
+     'Peter S': 5.0,
+     'Kimber': 3.9,
+     'Eric': 4.5,
+     'Erik': 4.4,
+     'Charlie': 4.3,
+     'Paul': 4.3,
+     'Rich': 4.4,
+     'Ricky': 3.9,
+     'Calvin': 4.3,
+     'Josh': 4.1,
+     'Peter W.': 4.2,
+     'Natalie': 4.2,
+     'Matt': 4.6
+}
 
 n_games = 7
 
-# calculate team combinations
-team_combos = list(pulp.combination(p, 2))
-
-# calculate game combinations / scores
+team_combos = list(pulp.combination(s.keys(), 2))
 game_combos = pyscheduler._game_combos(team_combos, n_games)
 game_scores = pyscheduler._game_scores(game_combos, s)
 
-# optimize lineup
 solver = pulp.getSolver('PULP_CBC_CMD', timeLimit=120, gapRel=.05)
-prob, gcvars = pyscheduler._optimize(game_combos, game_scores, p, n_games)
+prob, gcvars = pyscheduler._optimize(game_combos, game_scores, list(s.keys()), n_games)
+pyscheduler._solution(gcvars, s)
 
-# inspect solution
-df = pyscheduler._solution(gcvars)
-
-
-pyscheduler._solution_grid(df, p, 'partner')
+pyscheduler._solution_grid(df, list(s.keys()), 'partner')
 
 """
 from collections import defaultdict
