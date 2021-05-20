@@ -31,10 +31,13 @@ team_combos = list(pulp.combination(s.keys(), 2))
 game_combos = pyscheduler._game_combos(team_combos, n_games)
 game_scores = pyscheduler._game_scores(game_combos, s)
 
-solver = pulp.getSolver('PULP_CBC_CMD', timeLimit=120, gapRel=.05)
-prob, gcvars = pyscheduler._optimize(game_combos, game_scores, list(s.keys()), n_games)
-pyscheduler._solution(gcvars, s)
-
+solver = pulp.get_solver('PULP_CBC_CMD', gapRel=.01, timeLimit=90)
+prob, gcvars = pyscheduler._optimize(team_combos, game_combos, game_scores, list(s.keys()), n_games, solver)
+df = pyscheduler._solution(gcvars, s)
+try:
+    display(df)
+except NameError:
+    df
 pyscheduler._solution_grid(df, list(s.keys()), 'partner')
 
 """
@@ -55,14 +58,14 @@ def _game_combos(team_combos, n_games):
         list[tuple]
 
     """
-    game_combos = []
-    for t in team_combos:
-        for tt in team_combos:
-            if t[0] in tt or t[1] in tt:
-                continue
-            for round_number in np.arange(n_games) + 1:
-                game_combos.append((t, tt, round_number))
-    return game_combos
+    # calculate game combinations
+    # each item is a 3-tuple of tuple(team1), tuple(team2), game_number
+    # the set intersection ensures no common elements between teams
+    legal_games = [(t[0], t[1]) for t in pulp.combination(team_combos, 2) 
+                   if not set(t[0]) & set(t[1])]
+    return [(t1, t2, game_number)
+            for game_number in np.arange(n_games) + 1
+            for t1, t2 in legal_games]
 
 
 def _game_scores(game_combos, s):
@@ -107,10 +110,11 @@ def _opp_report(df, player_names):
     return opp
 
 
-def _optimize(game_combos, game_scores, p, n_games, solver=None):
+def _optimize(team_combos, game_combos, game_scores, p, n_games, solver=None):
     """Creates game scores from mapping
 
     Args:
+        team_combos (list[tuple]): the team combos
         game_combos (list[tuple]): the game combos
         game_scores (dict[tuple, float]): the game scores
         p (list[str]): player names
@@ -138,15 +142,15 @@ def _optimize(game_combos, game_scores, p, n_games, solver=None):
         prob += pulp.lpSum([v for k, v in gcvars.items()
                         if (player in k[0] or player in k[1])]) == n_games
 
-    # each player has 1 game per round
+    # each player has 1 game per game_number
     for player in p:
-        for round_number in np.arange(1, n_games + 1):
+        for game_number in np.arange(1, n_games + 1):
             prob += pulp.lpSum([v for k, v in gcvars.items()
                                 if (player in k[0] or player in k[1]) and
-                                k[2] == round_number]) == 1
+                                k[2] == game_number]) == 1
 
-    # do not play with a player more than twice
-    # do not play against a player more than thrice
+    # do not play with a player more than once
+    # do not play against a player more than twice
     for player in p:
         for pplayer in p:
             if player == pplayer:
