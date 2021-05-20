@@ -31,7 +31,7 @@ team_combos = list(pulp.combination(s.keys(), 2))
 game_combos = pyscheduler._game_combos(team_combos, n_games)
 game_scores = pyscheduler._game_scores(game_combos, s)
 
-solver = pulp.get_solver('PULP_CBC_CMD', gapRel=.01, timeLimit=90)
+solver = pulp.get_solver('PULP_CBC_CMD', gapAbs=.8, timeLimit=60)
 prob, gcvars = pyscheduler._optimize(team_combos, game_combos, game_scores, list(s.keys()), n_games, solver)
 df = pyscheduler._solution(gcvars, s)
 try:
