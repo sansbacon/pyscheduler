@@ -4,6 +4,23 @@ pyscheduler.py
 Example:
 
 
+# numpy example
+import numpy as np
+
+
+def rows_uniq_elems(a):
+    a_sorted = np.sort(a,axis=-1)
+    return a[(a_sorted[...,1:] != a_sorted[...,:-1]).all(-1)]
+
+
+players = np.array(['Al', 'Beth', 'Chris', 'Debbie', 'Eric', 'Fiona', 'George', 'Heather'
+                    'Ike', 'Jess', 'Ken', 'Lisa', 'Mitch', 'Nancy', 'Oscar', 'Paula'])
+              
+tcidx = np.transpose(np.triu_indices(len(players), 1))
+gcidx = np.transpose(np.triu_indices(len(tcidx), 1))
+game_combos = rows_uniq_elems(players[tcidx][gcidx].reshape(len(gcidx), 4))
+game_combos.shape
+
 """
 from collections import defaultdict
 import itertools
