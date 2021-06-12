@@ -8,8 +8,8 @@ Example:
 from collections import defaultdict
 import itertools
 import numpy as np
-import openpyxl
-import pandas as pd
+#import openpyxl
+#import pandas as pd
 import pulp
 
 
@@ -53,7 +53,7 @@ def _game_scores(game_combos, s):
         game_scores[(gc[0], gc[1])] = np.abs((s[p1] + s[p2]) - (s[p3] + s[p4]))
     return game_scores
 
-
+'''
 def _opp_report(df, player_names):
     """Generates opponent report"""
     opp = {player: {'partner': defaultdict(int), 'opponent': defaultdict(int)}
@@ -74,6 +74,7 @@ def _opp_report(df, player_names):
         opp[p3]['opponent'][p2] += 1
         opp[p4]['opponent'][p2] += 1
     return opp
+'''
 
 
 def _optimize(team_combos, game_combos, game_scores, p, n_games, solver=None):
@@ -136,7 +137,7 @@ def _optimize(team_combos, game_combos, game_scores, p, n_games, solver=None):
 
     return prob, gcvars
 
-
+'''
 def _solution(gcvars, s):
     """Inspects solution
 
@@ -203,7 +204,7 @@ def _to_spreadsheet(df, fname):
     """
     ws = openpyxl.load_workbook(fname)
     return None
-
+'''
 
 
 if '__name__' == '__main__':
