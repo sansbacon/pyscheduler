@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <script>
+      // Prevent forms from submitting.
+      function preventFormSubmit() {
+        var forms = document.querySelectorAll('form');
+        for (var i = 0; i < forms.length; i++) {
+          forms[i].addEventListener('submit', function(event) {
+            event.preventDefault();
+          });
+        }
+      }
+      window.addEventListener('load', preventFormSubmit);
+
+      function handleFormSubmit(formObject) {
+        google.script.run.withSuccessHandler(updateDiv).processForm(formObject);
+      }
+      function updateDiv(s) {
+        var div = document.getElementById('output');
+        div.innerHTML = s;
+      }
+    </script>
+  </head>
+  <body>
+      <form id="myForm" onsubmit="handleFormSubmit(this)">
+      <label for="n_rounds">Number of Rounds:</label><br>
+      <input type="text" id="n_rounds" name="n_rounds" value="7" maxlength="4" size="5"><br /><br />
+      <p>Schedule Type:</p>
+      <input type="radio" id="schedule_type_nop" name="schedule_type" value="no_partner" checked="checked">
+      <label for="schedule_type_nop">No Partner</label><br>
+      <input type="radio" id="schedule_type_p" name="schedule_type" value="partner">
+      <label for="schedule_type_p">Set Partner</label><br>
+      <br><br>
+      <input type="submit" value="Create Schedule">
+    </form>
+
+ <div id="output"></div>
+ </body>
+</html>
