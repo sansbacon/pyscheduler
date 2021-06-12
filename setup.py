@@ -18,6 +18,7 @@ def run():
           author_email="eric@erictruett.com",
           license="MIT",
           packages=find_packages(),
+          entry_points={'scripts': ['sched=scripts.pb:run']},
           zip_safe=False)
 
 
